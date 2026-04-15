@@ -1,0 +1,162 @@
+[
+  {
+    "filename": "pexels-yemendol-33420820.jpg",
+    "garmentType": "tuxedo jacket",
+    "style": ["formal"],
+    "material": ["satin"],
+    "occasion": ["formal event"],
+    "locationContext": { "country": "Iraq" }
+  },
+  {
+    "filename": "pexels-vikkirillova-8796468.jpg",
+    "garmentType": "blazer",
+    "style": ["minimalist", "chic"],
+    "material": ["wool"],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "United States" }
+  },
+  {
+    "filename": "pexels-juliano-astc-1623739-11557836.jpg",
+    "garmentType": "tuxedo jacket",
+    "style": ["formal"],
+    "material": ["satin"],
+    "occasion": ["formal event"],
+    "locationContext": { "country": "United States" }
+  },
+  {
+    "filename": "pexels-photowalabhaiya-35325979.jpg",
+    "garmentType": "jacket",
+    "style": ["streetwear", "edgy"],
+    "material": ["leather"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "India" }
+  },
+  {
+    "filename": "pexels-godisable-jacob-226636-1346186.jpg",
+    "garmentType": "top",
+    "style": ["casual", "streetwear"],
+    "material": [],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "United States" }
+  },
+  {
+    "filename": "pexels-unbunuelo-14835046.jpg",
+    "garmentType": "coat",
+    "style": ["classic", "preppy"],
+    "material": ["wool"],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "United Kingdom" }
+  },
+  {
+    "filename": "pexels-soufianlafnesh-34189783.jpg",
+    "garmentType": "tracksuit",
+    "style": ["athleisure", "streetwear"],
+    "material": ["cotton"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "Morocco" }
+  },
+  {
+    "filename": "pexels-simonlschlee-18505091.jpg",
+    "garmentType": "blazer",
+    "style": ["minimalist", "tailored"],
+    "material": [],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "United Kingdom" }
+  },
+  {
+    "filename": "pexels-theivancauich-17046561.jpg",
+    "garmentType": "trousers",
+    "style": ["minimalist", "urban"],
+    "material": [],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "Spain" }
+  },
+  {
+    "filename": "pexels-saul-lerma-perez-1110689166-20772232.jpg",
+    "garmentType": "t-shirt",
+    "style": ["casual", "streetwear"],
+    "material": ["cotton"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "Spain" }
+  },
+  {
+    "filename": "pexels-sasha-kim-8483831.jpg",
+    "garmentType": "suit",
+    "style": ["minimalist", "tailored"],
+    "material": [],
+    "occasion": ["office"],
+    "locationContext": { "country": "United States" }
+  },
+  {
+    "filename": "pexels-ron-lach-8306375.jpg",
+    "garmentType": "dress",
+    "style": ["casual", "minimalist"],
+    "material": ["cotton"],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "South Korea" }
+  },
+  {
+    "filename": "pexels-pk-photography-901584256-32999938.jpg",
+    "garmentType": "jacket",
+    "style": ["casual", "streetwear"],
+    "material": ["denim"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "India" }
+  },
+  {
+    "filename": "pexels-photowalabhaiya-35325979.jpg",
+    "garmentType": "jacket",
+    "style": ["streetwear", "edgy"],
+    "material": ["leather"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "India" }
+  },
+  {
+    "filename": "pexels-onzeseis-3396670-7770947.jpg",
+    "garmentType": "jacket",
+    "style": ["streetwear", "urban"],
+    "material": ["denim"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "Brazil" }
+  },
+  {
+    "filename": "pexels-oluseyi-32091724.jpg",
+    "garmentType": "t-shirt",
+    "style": ["casual", "streetwear"],
+    "material": ["cotton"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "Nigeria" }
+  },
+  {
+    "filename": "pexels-mlkbnl-30428550.jpg",
+    "garmentType": "coat",
+    "style": ["casual", "minimalist"],
+    "material": ["wool"],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "Poland" }
+  },
+  {
+    "filename": "pexels-mertcoskunraw-33992604.jpg",
+    "garmentType": "dress",
+    "style": ["casual", "bohemian"],
+    "material": [],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "France" }
+  },
+  {
+    "filename": "pexels-petrockom-15793336.jpg",
+    "garmentType": "jacket",
+    "style": ["streetwear", "urban"],
+    "material": [],
+    "occasion": ["everyday"],
+    "locationContext": { "country": "Germany" }
+  },
+  {
+    "filename": "pexels-pander-ash-2153656001-32835910.jpg",
+    "garmentType": "dress",
+    "style": ["casual"],
+    "material": [],
+    "occasion": ["daywear"],
+    "locationContext": { "country": "Nigeria" }
+  }
+]

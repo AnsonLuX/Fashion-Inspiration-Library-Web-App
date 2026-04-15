@@ -1,0 +1,10 @@
+node_modules
+app/client/node_modules
+app/client/dist
+app/server/node_modules
+app/server/.env
+app/server/uploads
+test-results
+playwright-report
+coverage
+.DS_Store
