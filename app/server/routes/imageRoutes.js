@@ -1,6 +1,7 @@
 // Defines routes for uploading images and retrieving saved image records.
 const express = require("express");
 const upload = require("../config/multer");
+const { protect } = require("../middleware/authMiddleware");
 const {
   uploadImage,
   getImages,
@@ -12,12 +13,12 @@ const {
 
 const router = express.Router();
 
-router.get("/", getImages);
-router.get("/facets", getImageFacets);
-router.get("/:id", getImageById);
+router.get("/", protect, getImages);
+router.get("/facets", protect, getImageFacets);
+router.get("/:id", protect, getImageById);
 
-router.post("/upload", upload.array("images", 20), uploadImage);
-router.post("/:id/classify", classifyImage);
-router.patch("/:id/annotations", updateAnnotations);
+router.post("/upload", protect, upload.array("images", 20), uploadImage);
+router.post("/:id/classify", protect, classifyImage);
+router.patch("/:id/annotations", protect, updateAnnotations);
 
 module.exports = router;

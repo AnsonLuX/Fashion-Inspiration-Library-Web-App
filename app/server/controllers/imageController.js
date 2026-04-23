@@ -12,6 +12,7 @@ const uploadImage = async (req, res) => {
 
     const newImages = await Image.create(
       req.files.map((file) => ({
+        owner: req.userId,
         originalFilename: file.originalname,
         filePath: file.path,
         imageUrl: `http://localhost:${process.env.PORT || 5050}/uploads/${file.filename}`,
@@ -29,7 +30,8 @@ const uploadImage = async (req, res) => {
 const getImages = async (req, res) => {
   try {
     const query = buildImageQuery(req.query);
-    const images = await Image.find(query).sort({ createdAt: -1 });
+    const finalQuery = { owner: req.userId, ...query };
+    const images = await Image.find(finalQuery).sort({ createdAt: -1 });
     res.json(images);
   } catch (error) {
     console.error("Get images error:", error.message);
@@ -41,7 +43,7 @@ const getImageById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const image = await Image.findById(id);
+    const image = await Image.findOne({ _id: id, owner: req.userId });
 
     if (!image) {
       return res.status(404).json({ message: "Image not found" });
@@ -59,7 +61,7 @@ const updateAnnotations = async (req, res) => {
     const { id } = req.params;
     const { tags = [], notes = "", observations = "" } = req.body;
 
-    const image = await Image.findById(id);
+    const image = await Image.findOne({ _id: id, owner: req.userId });
 
     if (!image) {
       return res.status(404).json({ message: "Image not found" });
@@ -86,7 +88,7 @@ const classifyImage = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const image = await Image.findById(id);
+    const image = await Image.findOne({ _id: id, owner: req.userId });
 
     if (!image) {
       return res.status(404).json({ message: "Image not found" });
@@ -171,7 +173,7 @@ const uniqueSorted = (arr) => {
 const getImageFacets = async (req, res) => {
   try {
     const images = await Image.find(
-      {},
+      { owner: req.userId },
       {
         designer: 1,
         metadata: 1,

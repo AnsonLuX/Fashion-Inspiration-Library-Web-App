@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "./services/api";
+import { useAuth } from "./context/AuthContext";
 
 function uniqueSorted(values) {
   const deduped = new Map();
@@ -53,6 +54,14 @@ function buildFacets(images) {
 }
 
 export default function App() {
+  const { user, login, logout, authLoading, isAuthenticated } = useAuth();
+  const [authMode, setAuthMode] = useState("login");
+  const [authForm, setAuthForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [authSubmitting, setAuthSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
   const [designer, setDesigner] = useState("");
   const [images, setImages] = useState([]);
@@ -233,13 +242,137 @@ export default function App() {
     return "Classify";
   };
 
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setAuthSubmitting(true);
+
+      const endpoint = authMode === "login" ? "/auth/login" : "/auth/register";
+      const payload =
+        authMode === "login"
+          ? {
+              email: authForm.email,
+              password: authForm.password,
+            }
+          : authForm;
+
+      const res = await api.post(endpoint, payload);
+      login(res.data);
+    } catch (error) {
+      console.error(`${authMode} failed:`, error);
+      alert(error.response?.data?.message || `Failed to ${authMode}`);
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <p className="text-sm text-neutral-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+        <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <h1 className="text-2xl font-semibold">
+            {authMode === "login" ? "Login" : "Create Account"}
+          </h1>
+          <p className="mt-2 text-sm text-neutral-600">
+            Sign in to manage your fashion inspiration library.
+          </p>
+
+          <form onSubmit={handleAuthSubmit} className="mt-6 space-y-4">
+            {authMode === "register" && (
+              <input
+                type="text"
+                placeholder="Name"
+                value={authForm.name}
+                onChange={(e) =>
+                  setAuthForm((prev) => ({ ...prev, name: e.target.value }))
+                }
+                className="w-full rounded-xl border border-neutral-300 px-4 py-3"
+              />
+            )}
+
+            <input
+              type="email"
+              placeholder="Email"
+              value={authForm.email}
+              onChange={(e) =>
+                setAuthForm((prev) => ({ ...prev, email: e.target.value }))
+              }
+              className="w-full rounded-xl border border-neutral-300 px-4 py-3"
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              value={authForm.password}
+              onChange={(e) =>
+                setAuthForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+              className="w-full rounded-xl border border-neutral-300 px-4 py-3"
+            />
+
+            <button
+              type="submit"
+              disabled={authSubmitting}
+              className="w-full rounded-xl bg-neutral-900 px-4 py-3 text-sm text-white hover:bg-neutral-800 disabled:opacity-50"
+            >
+              {authSubmitting
+                ? authMode === "login"
+                  ? "Logging in..."
+                  : "Creating account..."
+                : authMode === "login"
+                ? "Login"
+                : "Register"}
+            </button>
+          </form>
+
+          <button
+            onClick={() =>
+              setAuthMode((prev) => (prev === "login" ? "register" : "login"))
+            }
+            className="mt-4 text-sm text-neutral-600 underline"
+          >
+            {authMode === "login"
+              ? "Need an account? Register"
+              : "Already have an account? Login"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <div className="mx-auto max-w-7xl px-6 py-10">
-        <h1 className="text-3xl font-bold">Fashion Inspiration Library</h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Upload, classify, search, and annotate fashion inspiration images.
-        </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Fashion Inspiration Library</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Upload, classify, search, and annotate fashion inspiration images.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-medium text-neutral-900">{user?.name}</p>
+              <p className="text-xs text-neutral-500">{user?.email}</p>
+            </div>
+            <button
+              onClick={logout}
+              className="rounded-xl border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
 
         <form
           onSubmit={handleUpload}
