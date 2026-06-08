@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
   baseURL: "http://localhost:5050/api",
 });
-
+//automatically fetch token from localstorage and bring it the api call
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

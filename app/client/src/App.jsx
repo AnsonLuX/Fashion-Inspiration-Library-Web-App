@@ -112,7 +112,21 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setImages([]);
+      setFacets({
+        garmentTypes: [],
+        styles: [],
+        occasions: [],
+        countries: [],
+        seasons: [],
+        designers: [],
+      });
+      return;
+    }
+
     fetchImages();
+
     const fetchInitialFacets = async () => {
       try {
         const res = await api.get("/images");
@@ -123,11 +137,13 @@ export default function App() {
     };
 
     fetchInitialFacets();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchImages();
-  }, [search, filters]);
+    if (isAuthenticated) {
+      fetchImages();
+    }
+  }, [search, filters, isAuthenticated]);
 
   const handleUpload = async (e) => {
     e.preventDefault();
