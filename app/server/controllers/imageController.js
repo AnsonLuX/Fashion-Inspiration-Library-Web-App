@@ -3,6 +3,7 @@ const Image = require("../models/Image");
 const { classifyImageWithAI } = require("../services/classificationService");
 const { buildImageQuery } = require("../utils/buildImageQuery");
 const { normalizeModelOutput } = require("../utils/parseClassification");
+const uploadToS3 = require("../utils/uploadToS3");
 
 const uploadImage = async (req, res) => {
   try {
@@ -10,17 +11,22 @@ const uploadImage = async (req, res) => {
       return res.status(400).json({ message: "No files uploaded" });
     }
 
-    const newImages = await Image.create(
-      req.files.map((file) => ({
-        owner: req.userId,
-        originalFilename: file.originalname,
-        filePath: file.path,
-        imageUrl: `http://localhost:${process.env.PORT || 5050}/uploads/${file.filename}`,
-        designer: req.body.designer || "",
-      }))
+    const uploadedImages = await Promise.all(
+      req.files.map(async (file) => {
+        const { imageUrl, s3Key } = await uploadToS3(file);
+
+        return Image.create({
+          owner: req.userId,
+          originalFilename: file.originalname,
+          filePath: "",
+          s3Key,
+          imageUrl,
+          designer: req.body.designer || "",
+        });
+      }),
     );
 
-    res.status(201).json(newImages);
+    res.status(201).json(uploadedImages);
   } catch (error) {
     console.error("Upload image error:", error.message);
     res.status(500).json({ message: "Failed to upload image" });
@@ -99,7 +105,13 @@ const classifyImage = async (req, res) => {
     let parseStatus = "pending";
 
     try {
-      rawModelOutput = await classifyImageWithAI(image.filePath);
+      const imageSource = image.imageUrl || image.filePath;
+
+      if (!imageSource) {
+        throw new Error("No image source available for classification");
+      }
+
+      rawModelOutput = await classifyImageWithAI(imageSource);
       normalized = normalizeModelOutput(rawModelOutput);
       parseStatus = "success";
     } catch (error) {
@@ -166,7 +178,7 @@ const uniqueSorted = (arr) => {
     });
 
   return [...deduped.values()].sort((a, b) =>
-    a.localeCompare(b, undefined, { sensitivity: "base" })
+    a.localeCompare(b, undefined, { sensitivity: "base" }),
   );
 };
 
@@ -177,23 +189,23 @@ const getImageFacets = async (req, res) => {
       {
         designer: 1,
         metadata: 1,
-      }
+      },
     );
 
     const garmentTypes = uniqueSorted(
-      images.map((img) => img.metadata?.garmentType)
+      images.map((img) => img.metadata?.garmentType),
     );
 
     const styles = uniqueSorted(
-      images.flatMap((img) => img.metadata?.style || [])
+      images.flatMap((img) => img.metadata?.style || []),
     );
 
     const occasions = uniqueSorted(
-      images.flatMap((img) => img.metadata?.occasion || [])
+      images.flatMap((img) => img.metadata?.occasion || []),
     );
 
     const countries = uniqueSorted(
-      images.map((img) => img.metadata?.locationContext?.country)
+      images.map((img) => img.metadata?.locationContext?.country),
     );
 
     const seasons = uniqueSorted([
