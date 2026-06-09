@@ -1,6 +1,7 @@
 const { GoogleGenAI, Type } = require("@google/genai");
 const fs = require("fs");
 const path = require("path");
+const axios = require("axios");
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -24,9 +25,36 @@ function getMimeType(filePath) {
   return mimeMap[ext] || "image/jpeg";
 }
 
-async function classifyImageWithAI(filePath) {
-  const base64Image = imageFileToBase64(filePath);
-  const mimeType = getMimeType(filePath);
+async function imageUrlToBase64(imageUrl) {
+  const response = await axios.get(imageUrl, {
+    responseType: "arraybuffer",
+  });
+
+  const contentType = response.headers["content-type"] || "image/jpeg";
+  const base64Image = Buffer.from(response.data).toString("base64");
+
+  return {
+    base64Image,
+    mimeType: contentType,
+  };
+}
+
+function isUrl(value) {
+  return typeof value === "string" && /^https?:\/\//i.test(value);
+}
+
+async function classifyImageWithAI(imageSource) {
+  let base64Image;
+  let mimeType;
+
+  if (isUrl(imageSource)) {
+    const result = await imageUrlToBase64(imageSource);
+    base64Image = result.base64Image;
+    mimeType = result.mimeType;
+  } else {
+    base64Image = imageFileToBase64(imageSource);
+    mimeType = getMimeType(imageSource);
+  }
 
   const prompt = `
   Analyze this fashion inspiration image for a design library.

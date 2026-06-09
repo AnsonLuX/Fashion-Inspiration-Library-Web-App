@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 const imageSchema = new mongoose.Schema(
-  { 
+  {
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -14,7 +14,11 @@ const imageSchema = new mongoose.Schema(
     },
     filePath: {
       type: String,
-      required: true,
+      default: "",
+    },
+    s3Key: {
+      type: String,
+      default: "",
     },
     imageUrl: {
       type: String,
@@ -64,7 +68,7 @@ const imageSchema = new mongoose.Schema(
       observations: { type: String, default: "" },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Image", imageSchema);

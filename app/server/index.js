@@ -14,15 +14,24 @@ const missingEnvVars = requiredEnvVars.filter((name) => !process.env[name]);
 
 if (missingEnvVars.length > 0) {
   throw new Error(
-    `Missing required environment variables: ${missingEnvVars.join(", ")}`
+    `Missing required environment variables: ${missingEnvVars.join(", ")}`,
   );
 }
 
 const app = express();
 const PORT = process.env.PORT || 5050;
 
-app.use(cors());
-app.use(express.json());//parsing frontend json obj, create req.body
+const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"].filter(
+  Boolean,
+);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
+app.use(express.json()); //parsing frontend json obj, create req.body
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/images", imageRoutes);
 app.use("/api/auth", authRoutes);
