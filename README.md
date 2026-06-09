@@ -1,163 +1,180 @@
 # Fashion Inspiration Library
 
-AI-powered inspiration management app for fashion designers. The project turns uploaded street-style and garment photos into a searchable visual library with structured metadata, designer annotations, and evaluation tooling.
+A deployed full-stack AI image management platform for fashion inspiration workflows. The app helps designers upload garment and street-style reference images, classify them with multimodal AI, search/filter the image library, and save human annotations for later review.
 
-This repository was built as a lightweight full-stack take-home case study. The focus was not just image upload, but the full workflow:
+## Live Demo
 
-`upload -> classify -> review -> annotate -> search/filter -> evaluate`
+- Frontend: https://fashion-inspiration-library-web-app.vercel.app
+- Backend Health Check: https://fashion-inspiration-library-web-app.onrender.com/api/health
 
-## What It Does
+Note: The backend is hosted on Render free tier, so the first request may take extra time if the service has been inactive.
 
-- [x] Upload one or many fashion images at a time
-- [x] Run multimodal classification on each image with Gemini
-- [x] Store both natural-language summaries and structured fashion metadata
-- [x] Browse the library in a visual grid
-- [x] Search across AI-generated descriptions and designer-authored annotations
-- [x] Filter by garment type, style, occasion, country, season, and designer
-- [x] Open an image detail panel to review AI output and save human annotations
-- [x] Export evaluation labels and run a structured evaluation pass on a labeled subset
+## Highlights
 
-## Product Scope
+- Built a React + Vite frontend with searchable image grid, dynamic filters, detail drawer, and annotation workflow.
+- Built a Node.js / Express backend with JWT authentication, protected image APIs, MongoDB models, and Gemini AI classification.
+- Integrated AWS S3 for cloud image storage and MongoDB Atlas for user records, image metadata, AI output, and annotations.
+- Deployed the frontend on Vercel and the backend on Render with production environment variables and CORS configuration.
+- Added evaluation tooling to compare AI-generated fashion metadata against manually labeled records.
+- Included unit, integration, and end-to-end test coverage for parsing, filtering, upload, classify, and filter workflows.
 
-The intended user is a fashion designer collecting reference imagery from stores, streetwear, runway-inspired looks, or open-source fashion photos. In practice, those image collections become hard to reuse because they are usually stored as loose files without consistent metadata.
+## Tech Stack
 
-This app treats each image as a design record:
+**Frontend**
 
-- the image itself
-- AI-generated summary and structured attributes
-- human annotations added over time
-
-That combination makes the library more useful than either raw images or model output alone.
-
-## Current Stack
-
-### Frontend
-
-- React + Vite
+- React
+- Vite
 - Tailwind CSS
 - Axios
 
-### Backend
+**Backend**
 
-- Node.js + Express
-- MongoDB + Mongoose
-- Multer for uploads
+- Node.js
+- Express.js
+- MongoDB / Mongoose
+- JWT authentication
+- Multer upload handling
 - Gemini via `@google/genai`
-- Zod for output normalization
+- Zod output normalization
 
-### Testing
+**Cloud / Deployment**
 
-- Vitest for unit and integration tests
-- Playwright for end-to-end tests
+- Vercel for frontend deployment
+- Render for backend deployment
+- MongoDB Atlas for cloud database
+- AWS S3 for image storage
 
-## Core Features
+**Testing / Evaluation**
 
-### 1. Image Upload + AI Classification
+- Vitest
+- Playwright
+- Custom evaluation scripts for AI metadata accuracy
 
-Users can upload images from the UI. Uploaded files are stored locally on disk, then passed through a multimodal classification pipeline. The model returns:
+## Core Workflow
 
-- `aiSummary`
-- `garmentType`
-- `style`
-- `material`
-- `colorPalette`
-- `pattern`
-- `season`
-- `occasion`
-- `consumerProfile`
-- `trendNotes`
-- `locationContext`
-- `capturedAt`
+```text
+register / login
+-> upload image
+-> store image in AWS S3
+-> save image record in MongoDB Atlas
+-> classify image with Gemini
+-> normalize AI metadata
+-> search / filter / annotate in the UI
+```
 
-The backend normalizes model output before saving it, so the UI can rely on predictable fields even when the model response is imperfect.
+## Features
 
-![Core Feature 1: Upload and AI classification](docs/screenshots/corefeature1.png)
+### Authentication
 
-### 2. Search + Filters
+Users can register and log in. Protected backend routes ensure image upload, classification, and annotation actions are tied to authenticated users.
 
-The image library supports:
+### Image Upload + AWS S3 Storage
 
-- free-text search across summaries and annotation fields
-- structured filters for fashion metadata
-- filter combinations across design and contextual attributes
+Users can upload one or multiple fashion images. The backend uploads files to AWS S3 and stores the S3 image URL, object key, owner, filename, classification status, and metadata in MongoDB Atlas.
 
-The filter logic is centralized in [`app/server/utils/buildImageQuery.js`](app/server/utils/buildImageQuery.js), which keeps the controller thinner and makes query behavior testable.
+![Upload and AI classification](docs/screenshots/corefeature1.png)
 
-![Core Feature 2: Search and filters](docs/screenshots/corefeature2.png)
+### AI Classification
 
-### 3. Designer Annotations
+Each image can be classified with Gemini multimodal AI. The model returns both a natural-language summary and structured fashion attributes, including:
 
-Each image can also store designer-authored:
+- garment type
+- style
+- material
+- color palette
+- pattern
+- season
+- occasion
+- consumer profile
+- trend notes
+- location context
+- captured time context
 
-- tags
-- notes
-- observations
+The backend normalizes model output so the frontend can rely on consistent fields.
 
-In the detail drawer, AI-generated output and saved designer annotations are presented as separate sections so the human-authored layer stays explicit.
+### Search + Filters
 
-![Core Feature 3: Designer annotations](docs/screenshots/corefeature3.png)
+The library supports free-text search and structured filters across AI-generated metadata and human annotations. Users can filter by garment type, style, occasion, country, season, and designer.
 
-### 4. Evaluation Workflow
+![Search and filters](docs/screenshots/corefeature2.png)
 
-The repository includes an `eval/` folder with:
+### Designer Annotations
 
-- a labeled subset in [`eval/labels/labels.json`](eval/labels/labels.json)
-- an evaluation runner in [`eval/run_eval.js`](eval/run_eval.js)
-- exported results in [`eval/results.json`](eval/results.json)
-- a short written summary in [`eval/summary.md`](eval/summary.md)
+Users can open an image detail panel and add designer-authored tags, notes, and observations. AI-generated output and human-authored annotations are displayed separately.
 
-There is also [`eval/export-labels.js`](eval/export-labels.js), which exports the current parsed image records into label format for faster evaluation iteration.
+![Designer annotations](docs/screenshots/corefeature3.png)
+
+### Evaluation Workflow
+
+The `eval/` folder includes a labeled subset, an evaluation runner, result output, and a written summary. This allows the model output to be reviewed against manually labeled garment attributes.
+
+## Architecture
+
+```text
+User Browser
+   ↓
+Vercel - React Frontend
+   ↓ API requests
+Render - Express Backend
+   ↓
+MongoDB Atlas - users, image records, metadata, annotations
+   ↓
+AWS S3 - uploaded image files
+   ↓
+Gemini API - multimodal classification
+```
 
 ## Repository Structure
 
 ```text
 app/
   client/   React frontend
-  server/   Express API, MongoDB models, Gemini integration
+  server/   Express API, MongoDB models, Gemini integration, AWS S3 upload
+
 eval/       Evaluation scripts, labels, and results
-tests/      Unit, integration, and e2e tests
+tests/      Unit, integration, and end-to-end tests
 README.md
 context.md
 ```
 
-## Architecture Notes
-
-### Why this stack
-
-- **React + Vite** keeps the frontend lightweight and quick to iterate on
-- **Express + MongoDB** keeps the backend simple while still fitting flexible AI-generated metadata
-- **Multer + local file storage** is enough for a local-first proof of concept
-- **Gemini** provides multimodal classification without building a custom vision pipeline
-
-### Important trade-offs
-
-- This is intentionally a local-first prototype, not a deployed production system
-- Images are stored on local disk rather than cloud object storage
-- Search is practical and useful, but still keyword/filter driven rather than embedding-based retrieval
-- Model output is normalized for consistency, but taxonomy drift still exists for ambiguous labels
-
 ## Local Setup
 
-## Prerequisites
+### Prerequisites
 
 - Node.js 18+
 - npm
-- Local MongoDB running on `127.0.0.1:27017`, or your own MongoDB URI
-- A Gemini API key
+- MongoDB Atlas URI or local MongoDB URI
+- Gemini API key
+- AWS S3 bucket
+- AWS access key with S3 upload permission
 
-## Environment Variables
+### Environment Variables
 
-Create `app/server/.env` from [`app/server/.env.example`](app/server/.env.example).
+Create `app/server/.env` from `app/server/.env.example`.
 
-Example:
+Example backend environment:
 
 ```env
 PORT=5050
-MONGO_URI=mongodb://127.0.0.1:27017/walmart-fashion-ai
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/fashion_inspiration
+CLIENT_URL=http://localhost:5173
+JWT_SECRET=your_jwt_secret
 GEMINI_API_KEY=your_gemini_api_key_here
+AWS_REGION=us-west-1
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_S3_BUCKET_NAME=your_s3_bucket_name
 ```
 
-## Install Dependencies
+Create `app/client/.env` from `app/client/.env.example`.
+
+Example frontend environment:
+
+```env
+VITE_API_BASE_URL=http://localhost:5050/api
+```
+
+### Install Dependencies
 
 Root-level test tooling:
 
@@ -179,7 +196,7 @@ cd app/server
 npm install
 ```
 
-## Run the App
+### Run Locally
 
 Start the backend:
 
@@ -195,59 +212,49 @@ cd app/client
 npm run dev
 ```
 
-App URLs:
+Local URLs:
 
-- Frontend: `http://localhost:5173`
-- Backend: `http://localhost:5050`
-- Health check: `http://localhost:5050/api/health`
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5050
+- Health check: http://localhost:5050/api/health
+
+## API Overview
+
+- `GET /api/health`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/images`
+- `GET /api/images/facets`
+- `GET /api/images/:id`
+- `POST /api/images/upload`
+- `POST /api/images/:id/classify`
+- `PATCH /api/images/:id/annotations`
 
 ## Testing
 
-### Unit Tests
+Unit tests:
 
 ```bash
 npm run test:unit
 ```
 
-Covers parsing and normalization behavior, including defaults and array coercion.
-
-### Integration Tests
+Integration tests:
 
 ```bash
 npm run test:integration
 ```
 
-Covers filter query construction, especially season, location, search, and annotation-aware behavior.
-
-### End-to-End Test
+End-to-end tests:
 
 ```bash
 npm run test:e2e
 ```
 
-This Playwright test covers:
+The Playwright workflow covers upload, classify, and filter behavior. The frontend and backend should be running before executing the end-to-end test.
 
-- upload
-- classify
-- filter
-
-Notes:
-
-- Playwright browsers may need to be installed with `npx playwright install`
-- The frontend and backend must already be running before the e2e test is executed
-- The Gemini key must be valid, since the test exercises the classify step
-
-## Evaluation
+## Evaluation Summary
 
 The current labeled evaluation subset uses 20 manually labeled images and scores the following attributes:
-
-- garmentType
-- style
-- material
-- occasion
-- locationContext.country
-
-Current results from [`eval/results.json`](eval/results.json):
 
 - garment type accuracy: `80%` (`16/20`)
 - style accuracy: `95%` (`19/20`)
@@ -255,13 +262,7 @@ Current results from [`eval/results.json`](eval/results.json):
 - occasion accuracy: `20%` (`4/20`)
 - country accuracy: `10%` (`2/20`)
 
-Interpretation:
-
-- **Style** performs best because broad aesthetic cues are visually strong
-- **Garment type** is reasonably solid, but normalization mismatches still matter
-- **Material** is weaker when texture is subtle
-- **Occasion** is difficult because labels overlap semantically
-- **Country** is weakest because most images do not provide strong geographic evidence
+The results show that visual style and garment type are stronger categories, while occasion and country are harder because they require more contextual inference.
 
 Run evaluation:
 
@@ -275,45 +276,58 @@ Export labels from current DB state:
 node eval/export-labels.js
 ```
 
-## API Overview
+## Deployment Notes
 
-Main routes:
+**Frontend**
 
-- `GET /api/health`
-- `GET /api/images`
-- `GET /api/images/facets`
-- `GET /api/images/:id`
-- `POST /api/images/upload`
-- `POST /api/images/:id/classify`
-- `PATCH /api/images/:id/annotations`
+- Platform: Vercel
+- Root directory: `app/client`
+- Build command: `npm run build`
+- Output directory: `dist`
+- Production API env: `VITE_API_BASE_URL=https://fashion-inspiration-library-web-app.onrender.com/api`
+
+**Backend**
+
+- Platform: Render
+- Root directory: `app/server`
+- Build command: `npm install`
+- Start command: `npm start`
+
+**Database**
+
+- MongoDB Atlas stores users, image records, AI metadata, annotations, and classification status.
+
+**Image Storage**
+
+- AWS S3 stores uploaded image files.
+- MongoDB stores S3 image URLs and object keys instead of storing files directly.
 
 ## Known Limitations
 
-- The app is currently optimized for local demo use, not deployment
-- Uploaded images are stored locally and are not deduplicated
-- Classification quality still depends heavily on prompt wording and model interpretation
-- Label normalization is not yet strict enough for edge cases like `tuxedo` vs `tuxedo jacket`
-- Search is useful, but not yet semantic retrieval
-- The evaluation subset is still small relative to a production benchmark
+- Render free tier can introduce cold-start delays.
+- AI classification is currently synchronous and can be affected by Gemini API latency or temporary model availability.
+- S3 file cleanup is not yet automated when an image record is deleted.
+- Search is keyword/filter based rather than semantic vector search.
+- The evaluation dataset is still small relative to a production benchmark.
+- The current S3 access setup is simplified for portfolio deployment and should be hardened for a production system.
 
-## If I Had More Time
+## Future Improvements
 
-- Expand the labeled evaluation subset
-- Add synonym normalization dictionaries for garment taxonomy
-- Add confidence scoring per attribute
-- Add background classification jobs instead of synchronous classify requests
-- Move image storage to cloud storage
-- Add authentication and multi-user support
-- Add pagination and stronger dataset management workflows
+- Add server-side pagination for larger image libraries.
+- Add stronger indexing for frequently used filters.
+- Add background classification jobs with queue support.
+- Add retry and clearer failure messaging for AI classification.
+- Add image deletion and S3 cleanup workflow.
+- Add CloudFront or signed URL strategy for image delivery.
+- Add semantic search with embeddings.
+- Add GitHub Actions CI/CD pipeline.
+- Add Docker Compose for local full-stack startup.
+- Add monitoring and structured logging.
+- Expand the labeled evaluation subset.
+- Improve taxonomy normalization for garment categories.
 
-## Submission Notes
+## Project Summary
 
-This repository is intentionally honest about trade-offs. The goal was to build a working end-to-end prototype that demonstrates:
+This project started as a local AI image classification prototype and was upgraded into a deployed full-stack portfolio application.
 
-- multimodal AI integration
-- structured output handling
-- practical retrieval UX for designers
-- test coverage across parsing, filtering, and workflow-level behavior
-- a basic but real evaluation loop
-
-For a take-home exercise, I prioritized a coherent product workflow and testable architecture over production-scale infrastructure.
+It demonstrates practical experience with React, Node.js, Express, MongoDB Atlas, AWS S3, JWT authentication, Gemini multimodal AI integration, structured metadata parsing, cloud deployment, testing, and evaluation workflows.
